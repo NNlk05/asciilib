@@ -1,5 +1,6 @@
 import tkinter as tk
 
+
 class Game:
     @staticmethod
     def _prevent_selection(event) -> str:  # pyright: ignore[reportMissingParameterType, reportUnknownParameterType]  # noqa: ANN001
@@ -21,9 +22,17 @@ class Game:
         self.default_fg = fg
 
         self.filler = filler
+        self.title = title
 
+        self.content = [
+            [self.filler for _ in range(width)] for _ in range(height)
+        ]
+
+        self.colors = [[None for _ in range(width)] for _ in range(height)]
+
+    def start(self) -> None:
         root = tk.Tk()
-        root.title(title)
+        root.title(self.title)
         self.root = root
 
         self.area = tk.Text(
@@ -40,13 +49,7 @@ class Game:
         )
         self.area.pack()
 
-        self.content = [
-            [self.filler for _ in range(width)] for _ in range(height)
-        ]
-
-        self.colors = [[None for _ in range(width)] for _ in range(height)]
-
-    def start(self) -> None:
+        self._render()
         self.root.mainloop()
 
     def _render(self) -> None:
