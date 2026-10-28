@@ -1,0 +1,30 @@
+[project]
+name = "asciilib"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+authors = [
+    { name = "NNlk05"}
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.3",
+    "uncomment>=3.10.3",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 79
+
+[tool.ruff.lint]
+select = ["E", "W", "ANN", "UP"]
+
+[tool.ruff.format]
+quote-style = "double"
