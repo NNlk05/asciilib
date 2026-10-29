@@ -24,11 +24,13 @@ class Game:
         self.filler = filler
         self.title = title
 
-        self.content = [
+        self.content: list[list[str]] = [
             [self.filler for _ in range(width)] for _ in range(height)
         ]
 
-        self.colors = [[None for _ in range(width)] for _ in range(height)]
+        self.colors: list[list[str | None]] = [
+            [None for _ in range(width)] for _ in range(height)
+        ]
 
     def start(self) -> None:
         root = tk.Tk()

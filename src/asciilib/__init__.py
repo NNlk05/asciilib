@@ -1,1 +1,1 @@
-from game import Game
+from asciilib.game import Game
