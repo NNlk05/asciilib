@@ -1,3 +1,6 @@
+from asciilib.color import Color
+
+
 class Grid:
     def __init__(self, width: int, height: int, filler: str = " ") -> None:
         self.width = width
@@ -6,7 +9,7 @@ class Grid:
         self.content: list[list[str]] = [
             [filler for _ in range(width)] for _ in range(height)
         ]
-        self.colors: list[list[str | None]] = [
+        self.colors: list[list[Color | None]] = [
             [None for _ in range(width)] for _ in range(height)
         ]
 
@@ -15,19 +18,21 @@ class Grid:
         x: int,
         y: int,
         char: str = "",
-        color: str | None = None,
+        color: Color | None = None,
     ) -> None:
         self.content[y][x] = char
         self.colors[y][x] = color
 
-    def set_many(self, cells: list[tuple[int, int, str, str | None]]) -> None:
+    def set_many(
+        self, cells: list[tuple[int, int, str, Color | None]]
+    ) -> None:
         for x, y, char, color in cells:
             self.set(x, y, char, color)
 
-    def get(self, x: int, y: int) -> tuple[str, str | None]:
+    def get(self, x: int, y: int) -> tuple[str, Color | None]:
         return self.content[y][x], self.colors[y][x]
 
-    def fill(self, char: str = "", color: str | None = None) -> None:
+    def fill(self, char: str = "", color: Color | None = None) -> None:
         for y in range(self.height):
             for x in range(self.width):
                 self.content[y][x] = char

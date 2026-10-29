@@ -1,7 +1,8 @@
 import tkinter as tk
 
-from asciilib.grid import Grid
-from asciilib.shapes.shape import Shape # Pylance is bugging out here
+from .color import Color
+from .grid import Grid
+from .shapes.shape import Shape  # Pylance is bugging out here
 
 
 class Game:
@@ -14,8 +15,8 @@ class Game:
         width: int = 80,
         height: int = 24,
         title: str = "asciilib game",
-        fg: str = "white",
-        bg: str = "black",
+        fg: Color = Color("white"),
+        bg: Color = Color("black"),
         filler: str = " ",
     ) -> None:
         self.width = width
@@ -51,6 +52,9 @@ class Game:
         )
         self.area.pack()
 
+        self.area.bind("<Button-1>", self._prevent_selection)
+        self.area.bind("<B1-Motion>", self._prevent_selection)
+
         self._render()
         self.root.mainloop()
 
@@ -61,16 +65,22 @@ class Game:
         for y, row in enumerate(self.grid.colors):
             for x, color in enumerate(row):
                 if color is not None:
-                    self.area.tag_add(
-                        color, f"{y + 1}.{x}", f"{y + 1}.{x + 1}"
-                    )
-                    self.area.tag_config(color, foreground=color)
+                    color_str = str(color)
+                    if color_str:
+                        self.area.tag_add(
+                            color_str, f"{y + 1}.{x}", f"{y + 1}.{x + 1}"
+                        )
+                        self.area.tag_config(color_str, foreground=color_str)
 
     def _set_char(
         self,
         x: int,
         y: int,
         char: str = "",
-        color: str | None = None,
+        color: Color | None = None,
     ) -> None:
         self.grid.set(x, y, char, color)
+
+
+if __name__ == "__main__":
+    Game().start()

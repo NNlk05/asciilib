@@ -1,1 +1,1 @@
-from asciilib.shapes.shape import shape
+from .shape import Shape
