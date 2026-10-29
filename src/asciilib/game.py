@@ -1,5 +1,8 @@
 import tkinter as tk
 
+from asciilib.grid import Grid
+from asciilib.shapes.shape import Shape # Pylance is bugging out here
+
 
 class Game:
     @staticmethod
@@ -24,13 +27,10 @@ class Game:
         self.filler = filler
         self.title = title
 
-        self.content: list[list[str]] = [
-            [self.filler for _ in range(width)] for _ in range(height)
-        ]
+        self.grid = Grid(width, height, filler)
 
-        self.colors: list[list[str | None]] = [
-            [None for _ in range(width)] for _ in range(height)
-        ]
+    def draw(self, shape: Shape) -> None:
+        shape.draw(self.grid)
 
     def start(self) -> None:
         root = tk.Tk()
@@ -56,9 +56,9 @@ class Game:
 
     def _render(self) -> None:
         self.area.delete("1.0", tk.END)
-        for y, row in enumerate(self.content):
+        for y, row in enumerate(self.grid.content):
             self.area.insert(f"{y + 1}.0", "".join(row) + "\n")
-        for y, row in enumerate(self.colors):
+        for y, row in enumerate(self.grid.colors):
             for x, color in enumerate(row):
                 if color is not None:
                     self.area.tag_add(
@@ -73,5 +73,4 @@ class Game:
         char: str = "",
         color: str | None = None,
     ) -> None:
-        self.content[y][x] = char
-        self.colors[y][x] = color
+        self.grid.set(x, y, char, color)
