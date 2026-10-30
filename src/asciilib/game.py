@@ -1,8 +1,70 @@
 import tkinter as tk
+from collections.abc import Callable
 
 from .color import Color
 from .grid import Grid
 from .shapes.shape import Shape  # Pylance is bugging out here
+
+
+_MODIFIER_MAP = {
+    "ctrl": "Control",
+    "shift": "Shift",
+    "alt": "Alt",
+    "meta": "Meta",
+}
+
+_MODIFIER_ORDER = ("ctrl", "shift", "alt", "meta")
+
+
+def _expand_keybinding(keybinding: str) -> list[tuple[frozenset[str], str]]:
+    combinations: list[tuple[frozenset[str], str | None]] = []
+    for pattern in keybinding.split(" or "):
+        pattern_combos: list[tuple[frozenset[str], str | None]] = [
+            (frozenset(), None)
+        ]
+        for token in [token.strip() for token in pattern.split("+")]:
+            if token.startswith("[") and token.endswith("]"):
+                modifier = token[1:-1]
+                expanded: list[tuple[frozenset[str], str | None]] = []
+                for modifiers, key in pattern_combos:
+                    expanded.append((modifiers, key))
+                    expanded.append((modifiers | {modifier}, key))
+                pattern_combos = expanded
+            elif token.startswith("{") and token.endswith("}"):
+                choices = [choice.strip() for choice in token[1:-1].split(",")]
+                expanded = []
+                for modifiers, key in pattern_combos:
+                    for choice in choices:
+                        expanded.append((modifiers | {choice}, key))
+                pattern_combos = expanded
+            elif token in _MODIFIER_MAP:
+                pattern_combos = [
+                    (modifiers | {token}, key)
+                    for modifiers, key in pattern_combos
+                ]
+            else:
+                pattern_combos = [
+                    (modifiers, token) for modifiers, key in pattern_combos
+                ]
+        combinations.extend(
+            (modifiers, key)
+            for modifiers, key in pattern_combos
+            if key is not None
+        )
+    return combinations
+
+
+def _keybinding_to_events(keybinding: str, event_type: str) -> list[str]:
+    events: list[str] = []
+    for modifiers, key in _expand_keybinding(keybinding):
+        ordered = [
+            _MODIFIER_MAP[modifier]
+            for modifier in _MODIFIER_ORDER
+            if modifier in modifiers
+        ]
+        parts = [*ordered, event_type, key]
+        events.append(f"<{'-'.join(parts)}>")
+    return events
 
 
 class Game:
@@ -30,6 +92,23 @@ class Game:
 
         self.grid = Grid(width, height, filler)
 
+        self._key_down_bindings: list[tuple[str, Callable]] = []
+        self._key_up_bindings: list[tuple[str, Callable]] = []
+
+    def on_key_down(
+        self,
+        keybinding: str,
+        callback: Callable[[tk.Event[tk.Misc]], None],
+    ) -> None:
+        self._key_down_bindings.append((keybinding, callback))
+
+    def on_key_up(
+        self,
+        keybinding: str,
+        callback: Callable[[tk.Event[tk.Misc]], None],
+    ) -> None:
+        self._key_up_bindings.append((keybinding, callback))
+
     def draw(self, shape: Shape) -> None:
         shape.draw(self.grid)
 
@@ -54,6 +133,14 @@ class Game:
 
         self.area.bind("<Button-1>", self._prevent_selection)
         self.area.bind("<B1-Motion>", self._prevent_selection)
+
+        for keybinding, callback in self._key_down_bindings:
+            for event in _keybinding_to_events(keybinding, "KeyPress"):
+                self.area.bind(event, callback)
+
+        for keybinding, callback in self._key_up_bindings:
+            for event in _keybinding_to_events(keybinding, "KeyRelease"):
+                self.area.bind(event, callback)
 
         self._render()
         self.root.mainloop()
