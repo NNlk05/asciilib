@@ -9,7 +9,7 @@ _MODIFIER_ORDER = ("ctrl", "shift", "alt", "meta")
 
 
 def _expand_keybinding(keybinding: str) -> list[tuple[frozenset[str], str]]:
-    combinations: list[tuple[frozenset[str], str | None]] = []
+    combinations: list[tuple[frozenset[str], str]] = []
     for pattern in keybinding.split(" or "):
         pattern_combos: list[tuple[frozenset[str], str | None]] = [
             (frozenset(), None)
@@ -41,11 +41,9 @@ def _expand_keybinding(keybinding: str) -> list[tuple[frozenset[str], str]]:
                     (modifiers, token) for modifiers, key in pattern_combos
                 ]
 
-        combinations.extend(
-            (modifiers, key)
-            for modifiers, key in pattern_combos
-            if key is not None
-        )
+        for modifiers, key in pattern_combos:
+            if key is not None:
+                combinations.append((modifiers, key))
     return combinations
 
 
