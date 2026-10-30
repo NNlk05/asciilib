@@ -38,6 +38,8 @@ class Game:
 
         self._key_down_bindings: list[tuple[str, Callable]] = []
         self._key_up_bindings: list[tuple[str, Callable]] = []
+        self._mouse_down_bindings: list[Callable[[tuple[int, int]], None]] = []
+        self._mouse_up_bindings: list[Callable[[tuple[int, int]], None]] = []
 
     def on_key_down(
         self,
@@ -52,6 +54,18 @@ class Game:
         callback: Callable[[tk.Event[tk.Misc]], None],
     ) -> None:
         self._key_up_bindings.append((keybinding, callback))
+
+    def on_mouse_down(
+        self,
+        callback: Callable[[tuple[int, int]], None],
+    ) -> None:
+        self._mouse_down_bindings.append(callback)
+
+    def on_mouse_up(
+        self,
+        callback: Callable[[tuple[int, int]], None],
+    ) -> None:
+        self._mouse_up_bindings.append(callback)
 
     def draw(self, shape: Shape) -> None:
         shape.draw(self.grid)
@@ -85,6 +99,22 @@ class Game:
         for keybinding, callback in self._key_up_bindings:
             for event in _keybinding_to_events(keybinding, "KeyRelease"):
                 self.area.bind(event, callback)
+
+        def _make_mouse_handler(
+            bindings: list[Callable[[tuple[int, int]], None]],
+        ) -> Callable[[tk.Event[tk.Misc]], None]:
+            def handler(event: tk.Event[tk.Misc]) -> None:
+                line, col = self.area.index(f"@{event.x},{event.y}").split(".")
+                coord = (int(col), int(line) - 1)
+                for binding in bindings:
+                    binding(coord)
+
+            return handler
+
+        down_handler = _make_mouse_handler(self._mouse_down_bindings)
+        up_handler = _make_mouse_handler(self._mouse_up_bindings)
+        self.area.bind("<Button-1>", down_handler)
+        self.area.bind("<ButtonRelease-1>", up_handler)
 
         self._render()
         self.root.mainloop()
