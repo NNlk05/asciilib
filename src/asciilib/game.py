@@ -129,7 +129,7 @@ class Game:
             for x, color in enumerate(row):
                 if color is not None:
                     color_str = str(color)
-                    
+
                     if color_str:
                         self.area.tag_add(
                             color_str, f"{y + 1}.{x}", f"{y + 1}.{x + 1}"
