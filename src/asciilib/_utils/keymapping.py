@@ -14,17 +14,20 @@ def _expand_keybinding(keybinding: str) -> list[tuple[frozenset[str], str]]:
         pattern_combos: list[tuple[frozenset[str], str | None]] = [
             (frozenset(), None)
         ]
+
         for token in [token.strip() for token in pattern.split("+")]:
             if token.startswith("[") and token.endswith("]"):
                 modifier = token[1:-1]
                 expanded: list[tuple[frozenset[str], str | None]] = []
+
                 for modifiers, key in pattern_combos:
                     expanded.append((modifiers, key))
                     expanded.append((modifiers | {modifier}, key))
                 pattern_combos = expanded
             elif token.startswith("{") and token.endswith("}"):
                 choices = [choice.strip() for choice in token[1:-1].split(",")]
-                expanded = []
+                expanded = []\
+                
                 for modifiers, key in pattern_combos:
                     for choice in choices:
                         expanded.append((modifiers | {choice}, key))
@@ -38,6 +41,7 @@ def _expand_keybinding(keybinding: str) -> list[tuple[frozenset[str], str]]:
                 pattern_combos = [
                     (modifiers, token) for modifiers, key in pattern_combos
                 ]
+        
         combinations.extend(
             (modifiers, key)
             for modifiers, key in pattern_combos

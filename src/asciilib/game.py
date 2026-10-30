@@ -38,6 +38,7 @@ class Game:
 
         self._key_down_bindings: list[tuple[str, Callable]] = []
         self._key_up_bindings: list[tuple[str, Callable]] = []
+
         self._mouse_down_bindings: list[Callable[[tuple[int, int]], None]] = []
         self._mouse_up_bindings: list[Callable[[tuple[int, int]], None]] = []
 
@@ -121,12 +122,14 @@ class Game:
 
     def _render(self) -> None:
         self.area.delete("1.0", tk.END)
+
         for y, row in enumerate(self.grid.content):
             self.area.insert(f"{y + 1}.0", "".join(row) + "\n")
         for y, row in enumerate(self.grid.colors):
             for x, color in enumerate(row):
                 if color is not None:
                     color_str = str(color)
+                    
                     if color_str:
                         self.area.tag_add(
                             color_str, f"{y + 1}.{x}", f"{y + 1}.{x + 1}"
