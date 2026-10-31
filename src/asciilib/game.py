@@ -4,9 +4,7 @@ from collections.abc import Callable
 from .color import Color
 from .grid import Grid
 from .shapes.shape import Shape  # Pylance is bugging out here
-from ._utils.keymapping import (
-    keybinding_to_events,
-)
+from ._utils.keymapping import keybinding_to_events
 
 
 class Game:
