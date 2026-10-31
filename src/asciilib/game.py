@@ -20,6 +20,7 @@ class Game:
         fg: Color = Color("white"),
         bg: Color = Color("black"),
         filler: str = " ",
+        fps: int = 60,
     ) -> None:
         self.width = width
         self.height = height
@@ -37,6 +38,9 @@ class Game:
 
         self._mouse_down_bindings: list[Callable[[tuple[int, int]], None]] = []
         self._mouse_up_bindings: list[Callable[[tuple[int, int]], None]] = []
+
+        self._frame_bindings: list[Callable[[], None]] = []
+        self._fps = fps
 
     def on_key_down(
         self,
@@ -63,6 +67,9 @@ class Game:
         callback: Callable[[tuple[int, int]], None],
     ) -> None:
         self._mouse_up_bindings.append(callback)
+
+    def on_frame(self, callback: Callable[[], None]) -> None:
+        self._frame_bindings.append(callback)
 
     def draw(self, shape: Shape) -> None:
         shape.draw(self.grid)
@@ -114,6 +121,13 @@ class Game:
         self.area.bind("<ButtonRelease-1>", up_handler)
 
         self._render()
+
+        def _tick() -> None:
+            for callback in self._frame_bindings:
+                callback()
+            self.root.after(round(1000 / self._fps), _tick)
+
+        self.root.after(round(1000 / self._fps), _tick)
         self.root.mainloop()
 
     def _render(self) -> None:
