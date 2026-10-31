@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import  as sa
+import simpleaudio as sa
 
 
 class Sound:
