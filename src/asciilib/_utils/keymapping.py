@@ -1,14 +1,14 @@
-_MODIFIER_MAP = {
+MODIFIER_MAP = {
     "ctrl": "Control",
     "shift": "Shift",
     "alt": "Alt",
     "meta": "Meta",
 }
 
-_MODIFIER_ORDER = ("ctrl", "shift", "alt", "meta")
+MODIFIER_ORDER = ("ctrl", "shift", "alt", "meta")
 
 
-def _expand_keybinding(keybinding: str) -> list[tuple[frozenset[str], str]]:
+def expand_keybinding(keybinding: str) -> list[tuple[frozenset[str], str]]:
     combinations: list[tuple[frozenset[str], str]] = []
     for pattern in keybinding.split(" or "):
         pattern_combos: list[tuple[frozenset[str], str | None]] = [
@@ -31,7 +31,7 @@ def _expand_keybinding(keybinding: str) -> list[tuple[frozenset[str], str]]:
                     for choice in choices:
                         expanded.append((modifiers | {choice}, key))
                 pattern_combos = expanded
-            elif token in _MODIFIER_MAP:
+            elif token in MODIFIER_MAP:
                 pattern_combos = [
                     (modifiers | {token}, key)
                     for modifiers, key in pattern_combos
@@ -47,12 +47,12 @@ def _expand_keybinding(keybinding: str) -> list[tuple[frozenset[str], str]]:
     return combinations
 
 
-def _keybinding_to_events(keybinding: str, event_type: str) -> list[str]:
+def keybinding_to_events(keybinding: str, event_type: str) -> list[str]:
     events: list[str] = []
-    for modifiers, key in _expand_keybinding(keybinding):
+    for modifiers, key in expand_keybinding(keybinding):
         ordered = [
-            _MODIFIER_MAP[modifier]
-            for modifier in _MODIFIER_ORDER
+            MODIFIER_MAP[modifier]
+            for modifier in MODIFIER_ORDER
             if modifier in modifiers
         ]
         parts = [*ordered, event_type, key]

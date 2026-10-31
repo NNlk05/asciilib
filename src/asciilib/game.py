@@ -5,9 +5,9 @@ from .color import Color
 from .grid import Grid
 from .shapes.shape import Shape  # Pylance is bugging out here
 from ._utils.keymapping import (
-    _MODIFIER_MAP,
-    _expand_keybinding,
-    _keybinding_to_events,
+    MODIFIER_MAP,
+    expand_keybinding,
+    keybinding_to_events,
 )
 
 
@@ -94,11 +94,11 @@ class Game:
         self.area.bind("<B1-Motion>", self._prevent_selection)
 
         for keybinding, callback in self._key_down_bindings:
-            for event in _keybinding_to_events(keybinding, "KeyPress"):
+            for event in keybinding_to_events(keybinding, "KeyPress"):
                 self.area.bind(event, callback)
 
         for keybinding, callback in self._key_up_bindings:
-            for event in _keybinding_to_events(keybinding, "KeyRelease"):
+            for event in keybinding_to_events(keybinding, "KeyRelease"):
                 self.area.bind(event, callback)
 
         def _make_mouse_handler(
