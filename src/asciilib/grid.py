@@ -13,6 +13,9 @@ class Grid:
             [None for _ in range(width)] for _ in range(height)
         ]
 
+    def in_bounds(self, x: int, y: int) -> bool:
+        return 0 <= x < self.width and 0 <= y < self.height
+
     def set(
         self,
         x: int,

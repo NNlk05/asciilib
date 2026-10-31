@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import tkinter as tk
 from collections.abc import Callable
 
@@ -9,7 +11,7 @@ from ._utils.keymapping import keybinding_to_events
 
 class Game:
     @staticmethod
-    def _prevent_selection(event) -> str:  # pyright: ignore[reportMissingParameterType, reportUnknownParameterType]  # noqa: ANN001
+    def _prevent_selection(event: tk.Event[tk.Misc]) -> str:
         return "break"
 
     def __init__(
@@ -17,16 +19,16 @@ class Game:
         width: int = 80,
         height: int = 24,
         title: str = "asciilib game",
-        fg: Color = Color("white"),
-        bg: Color = Color("black"),
+        fg: Color | None = None,
+        bg: Color | None = None,
         filler: str = " ",
         fps: int = 60,
     ) -> None:
         self.width = width
         self.height = height
 
-        self.default_bg = bg
-        self.default_fg = fg
+        self.default_bg = bg if bg is not None else Color("black")
+        self.default_fg = fg if fg is not None else Color("white")
 
         self.filler = filler
         self.title = title
@@ -41,6 +43,10 @@ class Game:
 
         self._frame_bindings: list[Callable[[], None]] = []
         self._fps = fps
+
+        self._running = False
+        self.root: tk.Tk | None = None
+        self.area: tk.Text | None = None
 
     def on_key_down(
         self,
@@ -74,9 +80,53 @@ class Game:
     def draw(self, shape: Shape) -> None:
         shape.draw(self.grid)
 
+    def set(
+        self,
+        x: int,
+        y: int,
+        char: str = "",
+        color: Color | None = None,
+    ) -> None:
+        self.grid.set(x, y, char, color)
+
+    def get(self, x: int, y: int) -> tuple[str, Color | None]:
+        return self.grid.get(x, y)
+
+    def clear(self) -> None:
+        self.grid.clear()
+
+    def text(
+        self,
+        x: int,
+        y: int,
+        string: str,
+        color: Color | None = None,
+    ) -> None:
+        for offset, char in enumerate(string):
+            self.grid.set(x + offset, y, char, color)
+
+    def refresh(self) -> None:
+        self._render()
+
+    @property
+    def fps(self) -> int:
+        return self._fps
+
+    @fps.setter
+    def fps(self, value: int) -> None:
+        self._fps = value
+
+    def stop(self) -> None:
+        if not self._running:
+            return
+        self._running = False
+        if self.root is not None:
+            self.root.quit()
+
     def start(self) -> None:
         root = tk.Tk()
         root.title(self.title)
+        root.protocol("WM_DELETE_WINDOW", self.stop)
         self.root = root
 
         self.area = tk.Text(
@@ -120,9 +170,12 @@ class Game:
         self.area.bind("<Button-1>", down_handler)
         self.area.bind("<ButtonRelease-1>", up_handler)
 
+        self._running = True
         self._render()
 
         def _tick() -> None:
+            if not self._running:
+                return
             for callback in self._frame_bindings:
                 callback()
             self.root.after(round(1000 / self._fps), _tick)
@@ -145,15 +198,6 @@ class Game:
                             color_str, f"{y + 1}.{x}", f"{y + 1}.{x + 1}"
                         )
                         self.area.tag_config(color_str, foreground=color_str)
-
-    def _set_char(
-        self,
-        x: int,
-        y: int,
-        char: str = "",
-        color: Color | None = None,
-    ) -> None:
-        self.grid.set(x, y, char, color)
 
 
 if __name__ == "__main__":
