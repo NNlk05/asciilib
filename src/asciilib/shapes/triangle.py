@@ -12,7 +12,6 @@ class Triangle(Shape):
         border: str = "",
         fill_color: Color = Color(""),
         border_color: Color = Color(""),
-        border_top: str = "",
         border_left: str = "",
         border_right: str = "",
         border_bottom: str = "",
@@ -23,7 +22,6 @@ class Triangle(Shape):
         self.border = border
         self.fill_color = fill_color
         self.border_color = border_color
-        self.border_top = border_top
         self.border_left = border_left
         self.border_right = border_right
         self.border_bottom = border_bottom
@@ -77,8 +75,6 @@ class Triangle(Shape):
                     grid.set(x, y, self.fill, self.fill_color)
 
     def _border_char(self, x: int, y: int, left: int, right: int) -> str:
-        if y == 0 and self.border_top:
-            return self.border_top
         if y == self.height - 1 and self.border_bottom:
             return self.border_bottom
         if x == left and self.border_left:
