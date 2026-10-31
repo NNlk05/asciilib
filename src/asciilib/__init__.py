@@ -32,6 +32,10 @@ def __getattr__(name: str) -> object:
             from .shapes.line import Line
 
             return Line
+        case "Sound":
+            from .sound import Sound
+
+            return Sound
         case "Game":
             from .game import Game
 
