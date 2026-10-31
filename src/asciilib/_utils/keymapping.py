@@ -38,7 +38,7 @@ def expand_keybinding(keybinding: str) -> list[tuple[frozenset[str], str]]:
                 ]
             else:
                 pattern_combos = [
-                    (modifiers, token) for modifiers, key in pattern_combos
+                    (modifiers, token) for modifiers, _ in pattern_combos
                 ]
 
         for modifiers, key in pattern_combos:

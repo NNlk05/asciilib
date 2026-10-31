@@ -5,8 +5,6 @@ from .color import Color
 from .grid import Grid
 from .shapes.shape import Shape  # Pylance is bugging out here
 from ._utils.keymapping import (
-    MODIFIER_MAP,
-    expand_keybinding,
     keybinding_to_events,
 )
 
